@@ -1,0 +1,40 @@
+name: TruffleHog Secret Scan
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 2 * * *'  
+
+jobs:
+  trufflehog:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install TruffleHog
+      run: pip install trufflehog
+
+    - name: Run TruffleHog
+      run: trufflehog filesystem --json . > trufflehog-results.json
+
+    - name: Upload results as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: trufflehog-results
+        path: trufflehog-results.json
+
+    - name: Check for Secrets
+      if: failure()
+      run: echo "TruffleHog detected potential secrets!" && exit 1
