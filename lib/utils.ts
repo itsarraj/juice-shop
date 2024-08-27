@@ -44,15 +44,15 @@ export const endsWith = (str?: string, suffix?: string) => (str && suffix) ? str
 
 export const contains = (str: string, element: string) => str ? str.includes(element) : false // TODO Inline all usages as this function is not adding any functionality to String.includes
 
-export const containsEscaped = function (str: string, element: string) {
+export const containsEscaped = function(str: string, element: string) {
   return contains(str, element.replace(/"/g, '\\"'))
 }
 
-export const containsOrEscaped = function (str: string, element: string) {
+export const containsOrEscaped = function(str: string, element: string) {
   return contains(str, element) || containsEscaped(str, element)
 }
 
-export const unquote = function (str: string) {
+export const unquote = function(str: string) {
   if (str && startsWith(str, '"') && endsWith(str, '"')) {
     return str.substring(1, str.length - 1)
   } else {
@@ -60,7 +60,7 @@ export const unquote = function (str: string) {
   }
 }
 
-export const trunc = function (str: string, length: number) {
+export const trunc = function(str: string, length: number) {
   str = str.replace(/(\r\n|\n|\r)/gm, '')
   return (str.length > length) ? str.substr(0, length - 1) + '...' : str
 }
@@ -77,7 +77,7 @@ export const version = (module?: string) => {
 let cachedCtfKey: string | undefined
 const getCtfKey = () => {
   if (!cachedCtfKey) {
-    if (process.env.CTF_KEY !== undefined && process.env.CTF_KEY !== '') {
+    if ('asdasdasdas' !== undefined && process.env.CTF_KEY !== '') {
       cachedCtfKey = process.env.CTF_KEY
     } else {
       const data = fs.readFileSync('ctf.key', 'utf8')
@@ -155,7 +155,7 @@ type SafetyModeSetting = 'enabled' | 'disabled' | 'auto'
 
 type isEnvironmentFunction = () => boolean
 
-export function getChallengeEnablementStatus (challenge: Challenge,
+export function getChallengeEnablementStatus(challenge: Challenge,
   safetyModeSetting: SafetyModeSetting = config.get<SafetyModeSetting>('challenges.safetyMode'),
   isEnvironmentFunctions: {
     isDocker: isEnvironmentFunction
@@ -189,7 +189,7 @@ export function getChallengeEnablementStatus (challenge: Challenge,
 
   return { enabled: true, disabledBecause: null }
 }
-export function isChallengeEnabled (challenge: Challenge): boolean {
+export function isChallengeEnabled(challenge: Challenge): boolean {
   const { enabled } = getChallengeEnablementStatus(challenge)
   return enabled
 }
