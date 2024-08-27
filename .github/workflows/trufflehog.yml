@@ -1,22 +1,56 @@
-name: TruffleHog Super Secret Scanning 
+name: TruffleHog Secret Scan
 
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 2 * * *'  # Runs daily at 2 AM UTC
 
 jobs:
-  scan:
+  trufflehog-scan:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Run TruffleHog
-        uses: trufflesecurity/trufflehog@main
-        with:
-          extra_args: --only-verified
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
 
+    - name: Install TruffleHog
+      run: pip install trufflehog
+
+    - name: Run TruffleHog on Git History
+      run: trufflehog git --repo_path . --json > trufflehog-results.json
+
+    - name: Run TruffleHog on Filesystem
+      run: trufflehog filesystem . --json > trufflehog-filesystem-results.json
+
+    - name: Upload Git Scan Results as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: trufflehog-git-results
+        path: trufflehog-results.json
+
+    - name: Upload Filesystem Scan Results as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: trufflehog-filesystem-results
+        path: trufflehog-filesystem-results.json
+
+    - name: Fail if Secrets are Found
+      run: |
+        if grep -q 'secret' trufflehog-results.json; then
+          echo "Secrets detected in Git history!"
+          exit 1
+        fi
+        if grep -q 'secret' trufflehog-filesystem-results.json; then
+          echo "Secrets detected in filesystem!"
+          exit 1
+        fi
